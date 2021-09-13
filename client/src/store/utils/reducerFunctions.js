@@ -6,6 +6,7 @@ export const addMessageToStore = (state, payload) => {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      unreadMessage:1
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -13,7 +14,39 @@ export const addMessageToStore = (state, payload) => {
 
   return state.map((convo) => {
     if (convo.id === message.conversationId) {
-      return {...convo, messages:[...convo.messages, message], latestMessageText:message.text};
+      let unreadMessage = convo.unreadMessage;
+      if(convo.otherUser && convo.otherUser.id === message.senderId) unreadMessage+=1;
+      return {...convo, messages:[...convo.messages, message], latestMessageText:message.text, unreadMessage};
+    } else {
+      return convo;
+    }
+  });
+};
+export const updateReadMessageToStore = (state, payload) => {
+  const { readerId, readMessageId } = payload;
+  return state.map((convo) => {
+    if (convo.otherUser.id === readerId) {
+      return {...convo, readMessageId};
+    } else {
+      return convo;
+    }
+  });
+};
+export const updateOtherReadMessageToStore = (state, payload) => {
+  const { conversationId, readMessageId } = payload;
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      return {...convo, otherReadMessageId : readMessageId, unreadMessage:0};
+    } else {
+      return convo;
+    }
+  });
+};
+export const clearUnreadMessage = (state, payload) => {
+  const { conversationId } = payload;
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      return {...convo, unreadMessage : 0};
     } else {
       return convo;
     }

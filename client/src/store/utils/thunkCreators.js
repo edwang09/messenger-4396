@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  updateOtherReadMessageId
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -116,4 +117,11 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   } catch (error) {
     console.error(error);
   }
+};
+
+// post request to keep track of read message and send socket event
+export const readConversation =  (body) => async (dispatch) =>{
+  const { data } = await axios.put("/api/conversations/readmessage", {...body});
+  socket.emit("read-message", {...body});
+  dispatch(updateOtherReadMessageId(data.id, body.lastMessageId))
 };
