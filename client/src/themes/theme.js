@@ -1,6 +1,7 @@
 import { createMuiTheme } from "@material-ui/core";
 
 export const theme = createMuiTheme({
+  spacing: 10,
   typography: {
     fontFamily: "Open Sans, sans-serif",
     fontSize: 14,
@@ -14,6 +15,12 @@ export const theme = createMuiTheme({
     MuiInput: {
       input: {
         fontWeight: "bold"
+      }
+    },
+    MuiButton: {
+      containedSizeLarge:{
+        padding:"13px 55px",
+        borderRadius: 3,
       }
     }
   },

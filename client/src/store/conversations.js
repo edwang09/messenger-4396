@@ -4,6 +4,9 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  updateReadMessageToStore,
+  updateOtherReadMessageToStore,
+  clearUnreadMessage
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,7 +18,9 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
-
+const READ_MESSAGE_FEEDBACK = "READ_MESSAGE_FEEDBACK";
+const SET_OTHER_READ_MESSAGE = "SET_OTHER_READ_MESSAGE";
+const READ_MESSAGE = "READ_MESSAGE";
 // ACTION CREATORS
 
 export const gotConversations = (conversations) => {
@@ -66,7 +71,27 @@ export const addConversation = (recipientId, newMessage) => {
     payload: { recipientId, newMessage },
   };
 };
-
+// update message read ui when recieved feedback
+export const updateReadMessageFeedback = (readerId, readMessageId)=>{
+  return {
+    type: READ_MESSAGE_FEEDBACK,
+    payload: {readerId, readMessageId}
+  }
+}
+// update last read message to keep track of message read by current user to avoid duplicate request/socket event
+export const updateOtherReadMessageId = (conversationId, readMessageId)=>{
+  return {
+    type: SET_OTHER_READ_MESSAGE,
+    payload: {conversationId, readMessageId}
+  }
+}
+// update unread message count
+export const readMessage = (conversationId)=>{
+  return {
+    type: READ_MESSAGE,
+    payload: {conversationId}
+  }
+}
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -91,6 +116,12 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+    case READ_MESSAGE_FEEDBACK:
+      return updateReadMessageToStore(state, action.payload);
+    case SET_OTHER_READ_MESSAGE:
+      return updateOtherReadMessageToStore(state, action.payload);
+    case READ_MESSAGE:
+      return clearUnreadMessage(state, action.payload);
     default:
       return state;
   }
