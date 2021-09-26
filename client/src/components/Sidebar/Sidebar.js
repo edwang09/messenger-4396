@@ -39,10 +39,9 @@ const Sidebar = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const conversations = [...state.conversations];
-  conversations.sort((a, b) => Date.parse(b.messages[b.messages.length - 1].createdAt) - Date.parse(a.messages[a.messages.length - 1].createdAt));
+ 
   return {
-    conversations,
+    conversations:state.conversations
   };
 };
 

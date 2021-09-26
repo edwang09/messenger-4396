@@ -11,16 +11,15 @@ export const addMessageToStore = (state, payload) => {
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
   }
-
-  return state.map((convo) => {
-    if (convo.id === message.conversationId) {
+  const thisConversation = state
+    .filter((c) => c.id === message.conversationId)
+    .map((convo) => {
       let unreadMessage = convo.unreadMessage;
       if (convo.otherUser && convo.otherUser.id === message.senderId) unreadMessage += 1;
       return { ...convo, messages: [...convo.messages, message], latestMessageText: message.text, unreadMessage };
-    } else {
-      return convo;
-    }
-  });
+    });
+  const otherCoversation = state.filter((c) => c.id !== message.conversationId);
+  return [...thisConversation, ...otherCoversation];
 };
 export const updateReadMessageToStore = (state, payload) => {
   const { readerId, readMessageId } = payload;
