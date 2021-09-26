@@ -10,16 +10,13 @@ router.post("/", async (req, res, next) => {
     }
     const senderId = req.user.id;
     const { recipientId, text, conversationId, sender } = req.body;
-    let conversation
+    let conversation;
     // if we already know conversation id, get it by primary key
     if (conversationId) {
       conversation = await Conversation.findByPk(conversationId);
-    }else{
+    } else {
       // if we don't have conversation id, find a conversation to make sure it doesn't already exist
-      conversation = await Conversation.findConversation(
-        senderId,
-        recipientId
-      );
+      conversation = await Conversation.findConversation(senderId, recipientId);
     }
 
     if (!conversation) {
@@ -33,10 +30,10 @@ router.post("/", async (req, res, next) => {
       }
     }
     //update unread message count
-    if (conversation.user1Id === senderId){
-      conversation.user2UnreadMessage = conversation.user2UnreadMessage+1;
-    }else{
-      conversation.user1UnreadMessage = conversation.user1UnreadMessage+1;
+    if (conversation.user1Id === senderId) {
+      conversation.user2UnreadMessage = conversation.user2UnreadMessage + 1;
+    } else {
+      conversation.user1UnreadMessage = conversation.user1UnreadMessage + 1;
     }
     await conversation.save();
     const message = await Message.create({

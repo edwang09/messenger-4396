@@ -78,17 +78,17 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length-1].text;
+      convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length - 1].text;
       conversations[i] = convoJSON;
     }
-    
+
     res.json(conversations);
   } catch (error) {
     next(error);
   }
 });
 
-router.put("/readmessage",async (req, res, next) =>{
+router.put("/readmessage", async (req, res, next) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
@@ -97,18 +97,18 @@ router.put("/readmessage",async (req, res, next) =>{
     const lastMessageId = req.body.lastMessageId;
     const userId = req.user.id;
     const conversation = await Conversation.findConversation(userId, otherUserId);
-    if(conversation.user1Id === userId){
+    if (conversation.user1Id === userId) {
       conversation.user1ReadMessageId = lastMessageId;
       conversation.user1UnreadMessage = 0;
-    }else{
+    } else {
       conversation.user2ReadMessageId = lastMessageId;
       conversation.user2UnreadMessage = 0;
     }
 
-    await conversation.save()
+    await conversation.save();
     res.json(conversation);
   } catch (error) {
     next(error);
   }
-})
+});
 module.exports = router;

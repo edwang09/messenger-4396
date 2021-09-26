@@ -6,7 +6,7 @@ import {
   addMessageToStore,
   updateReadMessageToStore,
   updateOtherReadMessageToStore,
-  clearUnreadMessage
+  clearUnreadMessage,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -72,26 +72,26 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 // update message read ui when recieved feedback
-export const updateReadMessageFeedback = (readerId, readMessageId)=>{
+export const updateReadMessageFeedback = (readerId, readMessageId) => {
   return {
     type: READ_MESSAGE_FEEDBACK,
-    payload: {readerId, readMessageId}
-  }
-}
+    payload: { readerId, readMessageId },
+  };
+};
 // update last read message to keep track of message read by current user to avoid duplicate request/socket event
-export const updateOtherReadMessageId = (conversationId, readMessageId)=>{
+export const updateOtherReadMessageId = (conversationId, readMessageId) => {
   return {
     type: SET_OTHER_READ_MESSAGE,
-    payload: {conversationId, readMessageId}
-  }
-}
+    payload: { conversationId, readMessageId },
+  };
+};
 // update unread message count
-export const readMessage = (conversationId)=>{
+export const readMessage = (conversationId) => {
   return {
     type: READ_MESSAGE,
-    payload: {conversationId}
-  }
-}
+    payload: { conversationId },
+  };
+};
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -111,11 +111,7 @@ const reducer = (state = [], action) => {
     case CLEAR_SEARCHED_USERS:
       return state.filter((convo) => convo.id);
     case ADD_CONVERSATION:
-      return addNewConvoToStore(
-        state,
-        action.payload.recipientId,
-        action.payload.newMessage
-      );
+      return addNewConvoToStore(state, action.payload.recipientId, action.payload.newMessage);
     case READ_MESSAGE_FEEDBACK:
       return updateReadMessageToStore(state, action.payload);
     case SET_OTHER_READ_MESSAGE:
