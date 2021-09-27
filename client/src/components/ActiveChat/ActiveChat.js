@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     flexGrow: 8,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   chatContainer: {
     marginLeft: 41,
@@ -17,21 +17,21 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 }));
 
 const ActiveChat = (props) => {
   // when active chat changes or new message is shown make corresponging read message actions
-  React.useEffect(()=>{
-    if (props.conversation){
-      const recievedMessage = props.conversation.messages.filter((m)=>m.senderId !== props.user.id);
-      const lastMessage = recievedMessage.length > 0 ? recievedMessage[recievedMessage.length-1] : null;
+  React.useEffect(() => {
+    if (props.conversation) {
+      const recievedMessage = props.conversation.messages.filter((m) => m.senderId !== props.user.id);
+      const lastMessage = recievedMessage.length > 0 ? recievedMessage[recievedMessage.length - 1] : null;
       if (lastMessage && lastMessage.id !== props.conversation.otherReadMessageId) {
-        props.readConversation({otherUserId:props.conversation.otherUser.id,userId: props.user.id, lastMessageId:lastMessage.id});
+        props.readConversation({ otherUserId: props.conversation.otherUser.id, userId: props.user.id, lastMessageId: lastMessage.id });
       }
     }
-  })
+  });
   const classes = useStyles();
   const { user } = props;
   const conversation = props.conversation || {};
@@ -40,10 +40,7 @@ const ActiveChat = (props) => {
     <Box className={classes.root}>
       {conversation.otherUser && (
         <>
-          <Header
-            username={conversation.otherUser.username}
-            online={conversation.otherUser.online || false}
-          />
+          <Header username={conversation.otherUser.username} online={conversation.otherUser.online || false} />
           <Box className={classes.chatContainer}>
             <Messages
               messages={conversation.messages}
@@ -51,11 +48,7 @@ const ActiveChat = (props) => {
               otherUser={conversation.otherUser}
               userId={user.id}
             />
-            <Input
-              otherUser={conversation.otherUser}
-              conversationId={conversation.id}
-              user={user}
-            />
+            <Input otherUser={conversation.otherUser} conversationId={conversation.id} user={user} />
           </Box>
         </>
       )}
@@ -66,11 +59,7 @@ const ActiveChat = (props) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
-    conversation:
-      state.conversations &&
-      state.conversations.find(
-        (conversation) => conversation.otherUser.username === state.activeConversation
-      )
+    conversation: state.conversations && state.conversations.find((conversation) => conversation.otherUser.username === state.activeConversation),
   };
 };
 
@@ -78,7 +67,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     readConversation: (data) => {
       dispatch(readConversation(data));
-    }
+    },
   };
 };
 
