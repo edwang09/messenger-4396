@@ -24,12 +24,8 @@ const useStyles = makeStyles(() => ({
 const ActiveChat = (props) => {
   // when active chat changes or new message is shown make corresponging read message actions
   React.useEffect(() => {
-    if (props.conversation) {
-      const recievedMessage = props.conversation.messages.filter((m) => m.senderId !== props.user.id);
-      const lastMessage = recievedMessage.length > 0 ? recievedMessage[recievedMessage.length - 1] : null;
-      if (lastMessage && lastMessage.id !== props.conversation.otherReadMessageId) {
-        props.readConversation({ otherUserId: props.conversation.otherUser.id, userId: props.user.id, lastMessageId: lastMessage.id });
-      }
+    if (props.conversation && props.conversation.unreadMessage > 0) {
+      props.readConversation({ conversationId: props.conversation.id, otherUserId: props.conversation.otherUser.id, userId: props.user.id });
     }
   });
   const classes = useStyles();

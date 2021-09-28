@@ -18,7 +18,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id", "user1ReadMessageId", "user2ReadMessageId", "user1UnreadMessage", "user2UnreadMessage"],
+      attributes: ["id"],
       order: [[Message, "createdAt", "ASC"]],
       include: [
         { model: Message, order: ["createdAt", "ASC"] },
@@ -54,21 +54,22 @@ router.get("/", async (req, res, next) => {
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
         convoJSON.otherUser = convoJSON.user1;
-        convoJSON.unreadMessage = convoJSON.user2UnreadMessage;
-        convoJSON.readMessageId = convoJSON.user1ReadMessageId;
-        convoJSON.otherReadMessageId = convoJSON.user2ReadMessageId;
         delete convoJSON.user1;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
-        convoJSON.unreadMessage = convoJSON.user1UnreadMessage;
-        convoJSON.readMessageId = convoJSON.user2ReadMessageId;
-        convoJSON.otherReadMessageId = convoJSON.user1ReadMessageId;
         delete convoJSON.user2;
       }
-      delete convoJSON.user1UnreadMessage;
-      delete convoJSON.user2UnreadMessage;
-      delete convoJSON.user1ReadMessageId;
-      delete convoJSON.user2ReadMessageId;
+      // count unread message
+      convoJSON.unreadMessage = convoJSON.messages.reduce((count, cur) => {
+        if (cur.senderId === convoJSON.otherUser.id && cur.read === false) return count + 1;
+        return count;
+      }, 0);
+
+      // get last read message from other user
+      convoJSON.readMessageId = convoJSON.messages.reduce((pre, cur) => {
+        if (cur.senderId === userId && cur.read === true) return cur.id;
+        return pre;
+      }, -1);
 
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {
@@ -94,20 +95,39 @@ router.put("/readmessage", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-    const otherUserId = req.body.otherUserId;
-    const lastMessageId = req.body.lastMessageId;
+    const { otherUserId, conversationId } = req.body;
     const userId = req.user.id;
-    const conversation = await Conversation.findConversation(userId, otherUserId);
-    if (conversation.user1Id === userId) {
-      conversation.user1ReadMessageId = lastMessageId;
-      conversation.user1UnreadMessage = 0;
-    } else {
-      conversation.user2ReadMessageId = lastMessageId;
-      conversation.user2UnreadMessage = 0;
-    }
 
-    await conversation.save();
-    res.json(conversation);
+    // return 403 Forbidden if the user doesn't belong to the conversation
+    const conversation = await Conversation.findByPk(conversationId);
+    if (conversation.user1Id !== userId && conversation.user2Id !== userId) {
+      return res.sendStatus(403);
+    }
+    // update message read status
+    await Message.update(
+      { read: true },
+      {
+        where: {
+          conversationId: conversationId,
+          senderId: otherUserId,
+        },
+      }
+    );
+    // retrieve last read message id
+    const lastMessage = await Message.findAll({
+      limit: 1,
+      order: [["createdAt", "DESC"]],
+      where: {
+        conversationId: conversationId,
+        senderId: otherUserId,
+      },
+    });
+    res.json({
+      conversationId: conversationId,
+      otherUserId: otherUserId,
+      userId: userId,
+      lastMessageId: lastMessage.length > 0 ? lastMessage[0].toJSON().id : null,
+    });
   } catch (error) {
     next(error);
   }

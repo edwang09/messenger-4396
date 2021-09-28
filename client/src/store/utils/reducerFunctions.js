@@ -31,16 +31,7 @@ export const updateReadMessageToStore = (state, payload) => {
     }
   });
 };
-export const updateOtherReadMessageToStore = (state, payload) => {
-  const { conversationId, readMessageId } = payload;
-  return state.map((convo) => {
-    if (convo.id === conversationId) {
-      return { ...convo, otherReadMessageId: readMessageId, unreadMessage: 0 };
-    } else {
-      return convo;
-    }
-  });
-};
+
 export const clearUnreadMessage = (state, payload) => {
   const { conversationId } = payload;
   return state.map((convo) => {
