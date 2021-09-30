@@ -1,11 +1,6 @@
 import io from "socket.io-client";
 import store from "./store";
-import {
-  setNewMessage,
-  updateReadMessageFeedback,
-  removeOfflineUser,
-  addOnlineUser,
-} from "./store/conversations";
+import { setNewMessage, updateReadMessageFeedback, removeOfflineUser, addOnlineUser } from "./store/conversations";
 
 const socket = io(window.location.origin);
 
@@ -23,10 +18,9 @@ socket.on("connect", () => {
     store.dispatch(setNewMessage(data.message, data.sender));
   });
   socket.on("read-message", (data) => {
-    const {otherUserId, userId, lastMessageId} = data;
+    const { otherUserId, userId, lastMessageId } = data;
     // if the message read if send by curent user, make updates
-    if (store.getState().user && store.getState().user.id === otherUserId)
-      store.dispatch(updateReadMessageFeedback(userId, lastMessageId));
+    if (store.getState().user && store.getState().user.id === otherUserId) store.dispatch(updateReadMessageFeedback(userId, lastMessageId));
   });
 });
 

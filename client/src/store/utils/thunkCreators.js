@@ -1,6 +1,6 @@
 import axios from "axios";
 import socket from "../../socket";
-import { gotConversations, addConversation, setNewMessage, setSearchedUsers, updateOtherReadMessageId } from "../conversations";
+import { gotConversations, addConversation, setNewMessage, setSearchedUsers, readMessage } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
 axios.interceptors.request.use(async function (config) {
@@ -116,6 +116,6 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 // post request to keep track of read message and send socket event
 export const readConversation = (body) => async (dispatch) => {
   const { data } = await axios.put("/api/conversations/readmessage", { ...body });
-  socket.emit("read-message", { ...body });
-  dispatch(updateOtherReadMessageId(data.id, body.lastMessageId));
+  socket.emit("read-message", { ...data });
+  dispatch(readMessage(data.conversationId));
 };
